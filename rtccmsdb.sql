@@ -187,7 +187,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (18,'Super','','Admin','admin@admin.com','admin','$2y$10$Ihujvgfut3OpNtA8N9UmpO4NmkNGSAvbbotNP24WHxzUUKre3KQn.','Active','Admin','2023-10-27 14:53:34',NULL,NULL),(42,'Test','','Operator','operator@operator.com','operator','$2y$10$Ihujvgfut3OpNtA8N9UmpO4NmkNGSAvbbotNP24WHxzUUKre3KQn.','Active','Operator','2025-01-13 00:49:23','',NULL);
+INSERT INTO `users` VALUES (18,'Super','','Admin','admin@admin.com','admin','$2y$10$1T/vLRh2yH0NamYPEUucFu1NYlEcZltK4Qp6rRQfrcxMB5bo1mO1W','Active','Admin','2023-10-27 14:53:34',NULL,NULL),(42,'Test','','Operator','operator@operator.com','operator','$2y$10$1T/vLRh2yH0NamYPEUucFu1NYlEcZltK4Qp6rRQfrcxMB5bo1mO1W','Active','Operator','2025-01-13 00:49:23','',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
