@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
 --
--- Host: localhost    Database: hojdb
+-- Host: localhost    Database: rtccmsdb
 -- ------------------------------------------------------
--- Server version	8.0.35
+-- Server version	8.0.40
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -30,15 +30,15 @@ CREATE TABLE `accused` (
   `LastName` varchar(255) NOT NULL,
   `Sex` varchar(255) NOT NULL,
   `DateOfBirth` date NOT NULL,
-  `Contact` varchar(20) NOT NULL,
+  `Contact` varchar(20) DEFAULT NULL,
   `Email` varchar(255) NOT NULL,
-  `Address` text NOT NULL,
+  `Address` text,
   `PhotoURL` varchar(255) DEFAULT NULL,
-  `NationalID` varchar(20) DEFAULT NULL,
+  `NationalID` varchar(20) NOT NULL,
   `Occupation` varchar(255) DEFAULT NULL,
   `Notes` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -60,8 +60,8 @@ DROP TABLE IF EXISTS `cases`;
 CREATE TABLE `cases` (
   `id` int NOT NULL AUTO_INCREMENT,
   `CaseNo` varchar(20) NOT NULL,
-  `Title` varchar(255) DEFAULT NULL,
-  `Description` text NOT NULL,
+  `Title` varchar(255) NOT NULL,
+  `Description` text,
   `AuthorID` int NOT NULL,
   `AccusedID` int NOT NULL,
   `ViolationID` int NOT NULL,
@@ -75,13 +75,16 @@ CREATE TABLE `cases` (
   `HearingDate` datetime DEFAULT NULL,
   `Verdict` text,
   `Sentence` text,
-  `CreatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `UpdatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
+  `CreatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`,`UpdatedAt`,`CreatedAt`),
   KEY `cases_accused_idx` (`AccusedID`),
   KEY `cases_violations_idx` (`ViolationID`),
-  KEY `cases_author_idx` (`AuthorID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  KEY `cases_author_idx` (`AuthorID`),
+  CONSTRAINT `fk_cases_AccusedID` FOREIGN KEY (`AccusedID`) REFERENCES `accused` (`id`),
+  CONSTRAINT `fk_cases_AuthorID` FOREIGN KEY (`AuthorID`) REFERENCES `users` (`id`),
+  CONSTRAINT `fk_cases_ViolationID` FOREIGN KEY (`ViolationID`) REFERENCES `violations` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -105,10 +108,12 @@ CREATE TABLE `documents` (
   `Document` varchar(255) NOT NULL,
   `Description` text,
   `FilePath` varchar(255) NOT NULL,
-  `CaseNum` int DEFAULT NULL,
+  `CaseNum` int NOT NULL,
   `CreatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  PRIMARY KEY (`id`),
+  KEY `fk_document_CaseNum_idx` (`CaseNum`),
+  CONSTRAINT `fk_document_CaseNum` FOREIGN KEY (`CaseNum`) REFERENCES `cases` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,12 +134,14 @@ DROP TABLE IF EXISTS `hearings`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `hearings` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `CaseID` int DEFAULT NULL,
+  `CaseID` int NOT NULL,
   `Venue` varchar(45) DEFAULT NULL,
   `Schedule` datetime DEFAULT NULL,
   `Remarks` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  PRIMARY KEY (`id`),
+  KEY `fk_hearings_CaseID_idx` (`CaseID`),
+  CONSTRAINT `fk_hearings_CaseID` FOREIGN KEY (`CaseID`) REFERENCES `cases` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -161,9 +168,9 @@ CREATE TABLE `users` (
   `Email` varchar(100) NOT NULL,
   `Username` varchar(50) NOT NULL,
   `Password` varchar(255) NOT NULL,
-  `Status` enum('Active','Inactive') DEFAULT 'Active',
-  `Role` enum('Admin','Operator') DEFAULT 'Operator',
-  `CreatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `Status` enum('Active','Inactive') NOT NULL DEFAULT 'Active',
+  `Role` enum('Admin','Operator') NOT NULL DEFAULT 'Operator',
+  `CreatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `ChangePassword` varchar(45) DEFAULT NULL,
   `ExpiryPassword` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -171,7 +178,7 @@ CREATE TABLE `users` (
   UNIQUE KEY `Username_UNIQUE` (`Username`),
   KEY `idx_Username` (`Username`),
   KEY `idx_Email` (`Email`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -180,7 +187,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (18,'Juan','D.','Dela Cruz','dace.phage@gmail.com','admin','$2y$10$Ihujvgfut3OpNtA8N9UmpO4NmkNGSAvbbotNP24WHxzUUKre3KQn.','Active','Admin','2023-10-27 14:53:34',NULL,NULL),(19,'Scottie','','Mupada','itzmescottie26@gmail.com','juan123','$2y$10$OTS/duWlXpO26zKJNQNo2uaBvpMejoV/nC/9r/EnYrA5c/6y7oTRK','Active','Operator','2023-12-13 05:39:23',NULL,NULL),(20,'Angel Mae','Patriarca','Rano','rano.angelmaepit2011@gmail.com','angel123','$2y$10$OTS/duWlXpO26zKJNQNo2uaBvpMejoV/nC/9r/EnYrA5c/6y7oTRK','Active','Operator','2023-12-13 05:39:23',NULL,NULL);
+INSERT INTO `users` VALUES (18,'Super','','Admin','admin@admin.com','admin','$2y$10$Ihujvgfut3OpNtA8N9UmpO4NmkNGSAvbbotNP24WHxzUUKre3KQn.','Active','Admin','2023-10-27 14:53:34',NULL,NULL),(42,'Test','','Operator','operator@operator.com','operator','$2y$10$Ihujvgfut3OpNtA8N9UmpO4NmkNGSAvbbotNP24WHxzUUKre3KQn.','Active','Operator','2025-01-13 00:49:23','',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -198,7 +205,7 @@ CREATE TABLE `violations` (
   `Violation` varchar(255) NOT NULL,
   `Description` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -220,4 +227,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-13 12:52:14
+-- Dump completed on 2025-01-14 22:41:03
