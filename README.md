@@ -73,7 +73,7 @@ To install the system, follow these steps:
 **Admin:** admin  
 **Password:** secret
 
-**Admin:** operator  
+**Operator:** operator  
 **Password:** secret
 
 ---
