@@ -73,8 +73,9 @@ To install the system, follow these steps:
 **Admin:** admin  
 **Password:** secret
 
-**User:** operator  
+**Admin:** operator  
 **Password:** secret
+
 ---
 
 ## Modules Overview
